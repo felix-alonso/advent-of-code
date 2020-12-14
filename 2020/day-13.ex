@@ -34,6 +34,9 @@ defmodule Day13 do
 
   However, I would like to keep attempting the rest of the puzzles
   and I am a bit burnt on this puzzle so here we are.
+
+  That said, my previous version worked for the test cases and should
+  have completed the actual problem (eventually)...
   """
   def next({bus, index}, {time, step}) do
     if rem(time + index, bus) == 0 do
