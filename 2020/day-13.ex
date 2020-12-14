@@ -16,53 +16,34 @@ defmodule Day13 do
     end
   end
 
-  def t1, do: solve([7,13,"x","x",59,"x",31,19])
-  def t2, do: solve([1789,37,47,1889])
+  def t1, do: IO.inspect(solve([7,13,"x","x",59,"x",31,19])) == 1068781
+  def t2, do: IO.inspect(solve([1789,37,47,1889])) == 1202161486
 
   def solve(buses) do
-    buses = buses
-            |> Enum.with_index()
-            |> Enum.filter(fn {x, _} -> x != "x" end)
+    buses
+    |> Enum.with_index()
+    |> Enum.filter(fn {x, _} -> x != "x" end)
+    |> Enum.reduce({0, 1}, &next/2)
+    |> elem(0)
+  end
 
-    [big | rest] = buses |> Enum.sort(fn {x, _}, {y, _} -> x >= y end)
-    {fst, idx} = big
-    
-    div(100000000000000, fst)
-    |> naturals()
-    |> (filter_common(big, rest)).()
-    |> Enum.take(1)
-    |> IO.inspect()
-    |> (fn [x] -> x * fst - idx end).()
-   end
+  @doc """
+  This is a blatant steal from voltane:
 
-  def naturals(offset), do: Stream.unfold(offset, fn x -> {x, x + 1} end)
+  https://elixirforum.com/t/advent-of-code-2020-day-13/36180/5
 
-  def filter_common(x, t) do
-    t
-    |> Enum.map(increment(x)) 
-    |> Enum.map(fn func ->
-      fn stream -> 
-        stream
-        |> Stream.map(func)
-        |> Stream.filter(&(&1))
-      end
-    end)
-    |> pipe() 
+  However, I would like to keep attempting the rest of the puzzles
+  and I am a bit burnt on this puzzle so here we are.
+  """
+  def next({bus, index}, {time, step}) do
+    if rem(time + index, bus) == 0 do
+      {time, lcm(step, bus)}
+    else
+      next({bus, index}, {time + step, step})
+    end
   end
 
   def lcm(a, b), do: div((a * b), Integer.gcd(a, b))
-
-  def pipe(f, g), do: fn x -> x |> f.() |> g.() end
-  def pipe(fs), do: fs |> Enum.reverse() |> Enum.reduce(&pipe/2)
-
-  def increment({x, dx}) do
-    fn {y, dy} ->
-      fn n -> 
-        result = ((x * n) - dx + dy) / y
-        if Float.floor(result) == result, do: n, else: false
-      end
-    end
-  end
 
   def nearest(x, goal) do
     case {div(goal, x), rem(goal, x)} do
