@@ -11,15 +11,12 @@ defmodule Day17 do
   .##.#.#.
   """
 
-  @doc """
-  3D Conway's Game of Life. Edges expand outwards 
-  by 1 in 3 dimensions every generation
-  """
+  @test ".#.\n..#\n###"
 
   def part_1, do: solve(@input, 3, 6)
   def part_2, do: solve(@input, 4, 6)
-  def test, do: solve(".#.\n..#\n###", 3, 6)
-  def test_2, do: solve(".#.\n..#\n###", 4, 6)
+  def test_1, do: solve(@test, 3, 6)
+  def test_2, do: solve(@test, 4, 6)
 
   def solve(input, dims, n) do
     input
@@ -71,25 +68,6 @@ defmodule Day17 do
   def _neighbors([h|t]), do:
     t |> _neighbors() |> Enum.flat_map(&([[h-1|&1], [h|&1], [h+1|&1]]))
 
-  def print3d(board) do
-    board
-    |> sort_board()
-    |> (fn board=[{[_, _, z], _}|_] -> 
-      IO.puts(z)
-      board
-    end).()
-    |> Enum.reduce(fn next={[x1, y1, z1], _}, {[x2, y2, z2], s} ->
-      cond do
-        z2 < z1 -> write(s, "\n\n#{z1}\n")
-        x2 < x1 -> write(s, "\n")
-        y2 < y1 -> write(s)
-      end
-      next
-    end)
-    |> (fn {_, s} -> write(s, "\n\n~~~~~~~\n\n") end).()
-    board
-  end
-
   def sort_pair([h1], [h2]), do: h1 <= h2
   def sort_pair([h1|t1], [h2|t2]) when h1 == h2, do: sort_pair(t1, t2)
   def sort_pair([h1|t1], [h2|t2]), do: sort_pair(t1, t2)
@@ -97,9 +75,4 @@ defmodule Day17 do
   def sort_pair({[h1|_], _}, {[h2|_], _}), do: h1 <= h2
 
   def sort_board(board), do: board |> Enum.map(&(&1)) |> Enum.sort(&sort_pair/2)
-
-  def write(state, suffix \\ "")
-  def write(:alive, suffix), do: IO.write("#" <> suffix)
-  def write(:dead, suffix), do: IO.write("." <> suffix)
-
 end
